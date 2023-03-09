@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+export MYSQLDATA="${MYSQLDATA:-/var/lib/mysql/}"
+
+DATE=`date -Iseconds`
+NAME="${1:-LATEST}"
+
+rm -rf ${MYSQLDATA}/*
+
+/usr/local/bin/wal-g backup-fetch "${NAME}"

@@ -1,0 +1,22 @@
+version: "2.4"
+
+services:
+  mriadb:
+    image: docker.io/ondrejit/mariadb:10.11
+    build: .
+    environment:
+      MYSQL_DATABASE: dbname
+      MYSQL_ROOT_PASSWORD: pass
+      AWS_REGION: eu-central-1
+      AWS_ACCESS_KEY_ID: key
+      AWS_SECRET_ACCESS_KEY: secret
+      WALG_S3_PREFIX: s3://awesome-backup/mariadb
+      WALG_MYSQL_DATASOURCE_NAME: root:pass@tcp(localhost:3306)/dbname
+      WALG_STREAM_CREATE_COMMAND: mariabackup --backup --stream=xbstream --datadir=/var/lib/mysql --user root --password pass
+      WALG_STREAM_RESTORE_COMMAND: mbstream -x -C /var/lib/mysql
+      WALG_MYSQL_BACKUP_PREPARE_COMMAND: mariabackup --prepare --target-dir=/var/lib/mysql
+      WALG_MYSQL_BINLOG_REPLAY_COMMAND: 'mysqlbinlog --stop-datetime="$WALG_MYSQL_BINLOG_END_TS" "$WALG_MYSQL_CURRENT_BINLOG" | mysql'
+      WALG_PROFILE: dev
+#     WALG_PROFILE: restore
+    volumes:
+      - ./mariadb-db/data/:/var/lib/mysql/
